@@ -1,0 +1,112 @@
+<form 
+  class="add-task-form animate-slide-in"
+  (ngSubmit)="onSubmit()" 
+  (keydown)="onKeydown($event)"
+  novalidate>
+  
+  <div class="form-header">
+    <h3>
+      <app-icon name="plus" [size]="20" color="primary"></app-icon>
+      Создать новую задачу
+    </h3>
+    <p class="form-description">
+      Добавьте название и описание для вашей новой задачи
+    </p>
+  </div>
+
+  <!-- Поле названия -->
+  <div class="form-field">
+    <label for="task-title" class="form-label required">
+      <app-icon name="edit" [size]="16" color="secondary"></app-icon>
+      Название задачи
+    </label>
+    <input
+      id="task-title"
+      type="text"
+      class="form-input"
+      [(ngModel)]="form.title"
+      name="title"
+      placeholder="Введите название задачи..."
+      maxlength="200"
+      required
+      autocomplete="off"
+      [disabled]="isSubmitting">
+    
+    <div class="field-footer">
+      <span class="character-count" 
+            [class]="getCharacterCountClass(getCharacterCount(form.title), 200)">
+        {{ getCharacterCount(form.title) }}/200
+      </span>
+    </div>
+  </div>
+
+  <!-- Переключатель описания -->
+  <div class="description-toggle">
+    <button
+      type="button"
+      class="toggle-btn"
+      (click)="toggleDescription()"
+      [disabled]="isSubmitting">
+      <app-icon 
+        [name]="showDescription ? 'x' : 'plus'" 
+        [size]="16" 
+        [color]="showDescription ? 'danger' : 'primary'">
+      </app-icon>
+      {{ showDescription ? 'Скрыть описание' : 'Добавить описание' }}
+    </button>
+  </div>
+
+  <!-- Поле описания -->
+  <div class="form-field" *ngIf="showDescription">
+    <label for="task-description" class="form-label">
+      <app-icon name="info" [size]="16" color="secondary"></app-icon>
+      Описание
+    </label>
+    <textarea
+      id="task-description"
+      class="form-textarea"
+      [(ngModel)]="form.description"
+      name="description"
+      placeholder="Добавьте подробное описание задачи..."
+      rows="4"
+      maxlength="1000"
+      [disabled]="isSubmitting">
+    </textarea>
+    
+    <div class="field-footer">
+      <span class="character-count" 
+            [class]="getCharacterCountClass(getCharacterCount(form.description), 1000)">
+        {{ getCharacterCount(form.description) }}/1000
+      </span>
+    </div>
+  </div>
+
+  <!-- Действия формы -->
+  <div class="form-actions">
+    <button
+      type="submit"
+      class="btn btn-primary btn-submit"
+      [disabled]="!form.title.trim() || isSubmitting"
+      [class.btn-loading]="isSubmitting">
+      <app-icon name="check" [size]="18"></app-icon>
+      {{ isSubmitting ? 'Создание...' : 'Создать задачу' }}
+    </button>
+    
+    <button
+      type="button"
+      class="btn btn-secondary"
+      (click)="onCancel()"
+      [disabled]="isSubmitting">
+      <app-icon name="x" [size]="18"></app-icon>
+      Отменить
+    </button>
+  </div>
+
+  <!-- Подсказка горячих клавиш -->
+  <div class="keyboard-hints">
+    <small class="hint">
+      <app-icon name="info" [size]="12" color="muted"></app-icon>
+      <strong>Ctrl+Enter</strong> — создать, <strong>Esc</strong> — отменить
+    </small>
+  </div>
+</form> 

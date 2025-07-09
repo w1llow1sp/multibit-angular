@@ -1,0 +1,145 @@
+<div class="task-list-container">
+  <!-- Заголовок -->
+  <div class="task-list-header">
+    <div class="header-content">
+      <h2 class="animate-fade-in">
+        <app-icon name="check" [size]="28" color="primary"></app-icon>
+        Мои задачи
+      </h2>
+      <div class="task-stats" *ngIf="!isLoading">
+        <div class="stat">
+          <app-icon name="info" [size]="16" color="secondary"></app-icon>
+          <span>Всего: {{ (tasksCount$ | async) || 0 }}</span>
+        </div>
+        <div class="stat">
+          <app-icon name="check" [size]="16" color="success"></app-icon>
+          <span>Выполнено: {{ (completedTasksCount$ | async) || 0 }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="header-buttons">
+      <button 
+        class="btn btn-primary"
+        (click)="toggleAddForm()"
+        [attr.aria-expanded]="showAddForm">
+        <app-icon [name]="showAddForm ? 'x' : 'plus'" [size]="20"></app-icon>
+        {{ showAddForm ? 'Отменить' : 'Добавить задачу' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Форма добавления задачи -->
+  <div class="add-task-form animate-fade-in" *ngIf="showAddForm">
+    <app-add-task (taskAdded)="onTaskAdded()"></app-add-task>
+  </div>
+
+  <!-- Состояние загрузки -->
+  <ng-container *ngIf="isLoading">
+    <app-loading-skeleton type="task-list" [count]="3"></app-loading-skeleton>
+  </ng-container>
+
+  <!-- Основное содержимое -->
+  <ng-container *ngIf="!isLoading && (state$ | async) as state">
+    
+    <!-- Список задач -->
+    <div class="tasks-container">
+      <ng-container *ngIf="state.tasks.length > 0; else noTasksTemplate">
+        <div 
+          [class]="'task-card animate-fade-in ' + getTaskCardClass(task.status)"
+          *ngFor="let task of state.tasks; let i = index; trackBy: trackByTaskId"
+          [style.animation-delay]="(i * 100) + 'ms'">
+          
+          <!-- Заголовок задачи -->
+          <div class="task-header">
+            <h3>
+              <app-icon 
+                [name]="getTaskStatusIcon(task.status)" 
+                [size]="20" 
+                [color]="getTaskStatusColor(task.status)">
+              </app-icon>
+              {{ task.title }}
+            </h3>
+            <span [class]="'task-status ' + getStatusClass(task.status)">
+              {{ getStatusText(task.status) }}
+            </span>
+          </div>
+
+          <!-- Описание задачи -->
+          <p class="task-description" *ngIf="task.description">
+            {{ task.description }}
+          </p>
+          <p class="task-description no-description" *ngIf="!task.description">
+            <app-icon name="info" [size]="16" color="secondary"></app-icon>
+            Описание не указано
+          </p>
+
+          <!-- Дата задачи -->
+          <div class="task-date">
+            <app-icon name="calendar" [size]="16" color="secondary"></app-icon>
+            <span>Создано: {{ task.createdAt | russianDate:dateFormat }}</span>
+            <span *ngIf="task.updatedAt" class="updated-date">
+              <app-icon name="edit" [size]="14" color="success"></app-icon>
+              Обновлено: {{ task.updatedAt | russianDate:dateFormat }}
+            </span>
+          </div>
+
+          <!-- Действия с задачей -->
+          <div class="task-actions">
+            <div class="status-actions">
+              <label class="status-label">
+                <app-icon name="settings" [size]="16" color="secondary"></app-icon>
+                Изменить статус: 
+                <small class="current-status">(сейчас: {{ getStatusText(task.status) }})</small>
+              </label>
+              <select 
+                class="status-select"
+                [ngModel]="task.status"
+                (ngModelChange)="updateTaskStatus(task.id, $event)"
+                [attr.aria-label]="'Изменить статус задачи: ' + task.title">
+                <option [value]="TaskStatus.TODO">{{ getStatusText(TaskStatus.TODO) }}</option>
+                <option [value]="TaskStatus.IN_PROGRESS">{{ getStatusText(TaskStatus.IN_PROGRESS) }}</option>
+                <option [value]="TaskStatus.COMPLETED">{{ getStatusText(TaskStatus.COMPLETED) }}</option>
+              </select>
+            </div>
+
+            <div class="action-buttons">
+              <a 
+                class="btn btn-secondary btn-sm"
+                [routerLink]="['/tasks', task.id]"
+                [attr.aria-label]="'Посмотреть детали задачи: ' + task.title">
+                <app-icon name="arrow-right" [size]="16"></app-icon>
+                Подробнее
+              </a>
+              
+              <button 
+                class="btn btn-danger btn-sm"
+                (click)="deleteTask(task.id)"
+                [attr.aria-label]="'Удалить задачу: ' + task.title">
+                <app-icon name="trash" [size]="16"></app-icon>
+                Удалить
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Шаблон отсутствующих задач -->
+      <ng-template #noTasksTemplate>
+        <div class="no-tasks animate-scale-in">
+          <app-icon name="info" [size]="48" color="secondary"></app-icon>
+          <h3>Нет задач</h3>
+          <p>
+            У вас пока нет задач. Создайте первую задачу, нажав кнопку "Добавить задачу".
+          </p>
+          <button 
+            class="btn btn-primary"
+            (click)="toggleAddForm()">
+            <app-icon name="plus" [size]="20"></app-icon>
+            Создать первую задачу
+          </button>
+        </div>
+      </ng-template>
+    </div>
+  </ng-container>
+</div> 

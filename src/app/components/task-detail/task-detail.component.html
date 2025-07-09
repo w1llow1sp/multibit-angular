@@ -1,0 +1,199 @@
+<div [class]="'task-detail-container ' + (state.task ? getContainerClass(state.task.status) : '')" (keydown)="onKeydown($event)" tabindex="0">
+  <!-- Состояние загрузки -->
+  <ng-container *ngIf="state.isLoading">
+    <app-loading-skeleton type="task-detail"></app-loading-skeleton>
+  </ng-container>
+
+  <!-- Состояние ошибки -->
+  <div *ngIf="state.error && !state.isLoading" class="error-state animate-fade-in">
+    <app-icon name="x" [size]="48" color="danger"></app-icon>
+    <h2>Ошибка</h2>
+    <p>{{ state.error }}</p>
+    <button class="btn btn-primary" (click)="goBack()">
+      <app-icon name="arrow-left" [size]="18"></app-icon>
+      Вернуться к списку
+    </button>
+  </div>
+
+  <!-- Содержимое задачи -->
+  <ng-container *ngIf="state.task && !state.isLoading && !state.error">
+    
+    <!-- Хлебные крошки -->
+    <nav class="breadcrumb animate-slide-in">
+      <a class="breadcrumb-link" (click)="goBack()">
+        <app-icon name="arrow-left" [size]="16"></app-icon>
+        Список задач
+      </a>
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-current">{{ state.task.title }}</span>
+    </nav>
+
+    <!-- Заголовок задачи -->
+    <header class="task-header animate-fade-in">
+      <div class="header-main">
+        <h1 *ngIf="!state.isEditing">{{ state.task.title }}</h1>
+        <input 
+          *ngIf="state.isEditing"
+          type="text"
+          class="edit-title-input"
+          [(ngModel)]="editForm.title"
+          placeholder="Название задачи..."
+          maxlength="200"
+          #titleInput>
+        
+        <span [class]="'task-status ' + getStatusClass(state.task.status)">
+          <app-icon 
+            [name]="getTaskStatusIcon(state.task.status)" 
+            [size]="16" 
+            [color]="getTaskStatusColor(state.task.status)">
+          </app-icon>
+          {{ getStatusText(state.task.status) }}
+        </span>
+      </div>
+
+              <!-- Кнопки действий -->
+        <div class="header-actions">
+          <button 
+            *ngIf="!state.isEditing"
+            class="btn btn-secondary"
+            (click)="startEditing()">
+            <app-icon name="edit" [size]="18"></app-icon>
+            Редактировать
+          </button>
+
+          <ng-container *ngIf="state.isEditing">
+            <button 
+              class="btn btn-primary"
+              (click)="saveTask()"
+              [disabled]="!editForm.title.trim()">
+              <app-icon name="check" [size]="18"></app-icon>
+              Сохранить
+            </button>
+            
+            <button 
+              class="btn btn-secondary"
+              (click)="cancelEditing()">
+              <app-icon name="x" [size]="18"></app-icon>
+              Отменить
+            </button>
+          </ng-container>
+        </div>
+      </header>
+
+      <!-- Содержимое задачи -->
+          <main class="task-content animate-fade-in">
+        
+        <!-- Секция описания -->
+        <section class="content-section">
+          <h3 class="section-title">
+            <app-icon name="info" [size]="20" color="secondary"></app-icon>
+            Описание
+          </h3>
+          
+          <div *ngIf="!state.isEditing" class="description-content">
+            <p *ngIf="state.task.description" class="description-text">
+              {{ state.task.description }}
+            </p>
+            <p *ngIf="!state.task.description" class="no-description">
+              <app-icon name="info" [size]="16" color="secondary"></app-icon>
+              Описание не добавлено
+            </p>
+          </div>
+
+          <div *ngIf="state.isEditing" class="description-edit">
+            <textarea
+              class="edit-description-textarea"
+              [(ngModel)]="editForm.description"
+              placeholder="Добавьте описание задачи..."
+              rows="6"
+              maxlength="1000">
+            </textarea>
+            <div class="character-count">
+              <span [class]="editForm.description.length > 900 ? 'text-warning' : 'text-muted'">
+                {{ editForm.description.length }}/1000
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Секция дат -->
+      <section class="content-section">
+        <h3 class="section-title">
+          <app-icon name="calendar" [size]="20" color="secondary"></app-icon>
+          Информация о датах
+        </h3>
+        
+        <div class="dates-grid">
+          <div class="date-item">
+            <label class="date-label">
+              <app-icon name="calendar" [size]="16" color="primary"></app-icon>
+              Создано:
+            </label>
+            <span class="date-value">
+              {{ state.task.createdAt | russianDate:dateFormat }}
+            </span>
+          </div>
+          
+          <div class="date-item" *ngIf="state.task.updatedAt">
+            <label class="date-label">
+              <app-icon name="edit" [size]="16" color="success"></app-icon>
+              Обновлено:
+            </label>
+            <span class="date-value">
+              {{ state.task.updatedAt | russianDate:dateFormat }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+              <!-- Секция управления статусом -->
+        <section class="content-section">
+          <h3 class="section-title">
+            <app-icon name="settings" [size]="20" color="secondary"></app-icon>
+            Управление статусом
+          </h3>
+          
+          <div class="status-controls">
+            <label class="status-label">
+              Текущий статус: 
+              <strong>{{ getStatusText(state.task.status) }}</strong>
+            </label>
+            <select 
+              class="status-select"
+              [ngModel]="state.task.status"
+              (ngModelChange)="updateTaskStatus($event)"
+              [disabled]="state.isEditing">
+              <option [value]="TaskStatus.TODO">{{ getStatusText(TaskStatus.TODO) }}</option>
+              <option [value]="TaskStatus.IN_PROGRESS">{{ getStatusText(TaskStatus.IN_PROGRESS) }}</option>
+              <option [value]="TaskStatus.COMPLETED">{{ getStatusText(TaskStatus.COMPLETED) }}</option>
+            </select>
+          </div>
+        </section>
+
+
+    </main>
+
+    <!-- Панель действий -->
+    <footer class="action-bar animate-slide-in">
+      <div class="action-group">
+        <button 
+          class="btn btn-outline"
+          (click)="goBack()">
+          <app-icon name="arrow-left" [size]="18"></app-icon>
+          Назад к списку
+        </button>
+      </div>
+
+      <div class="action-group danger-actions">
+        <button 
+          class="btn btn-danger"
+          (click)="deleteTask()"
+          [disabled]="state.isEditing">
+          <app-icon name="trash" [size]="18"></app-icon>
+          Удалить задачу
+        </button>
+      </div>
+    </footer>
+
+  </ng-container>
+</div> 
