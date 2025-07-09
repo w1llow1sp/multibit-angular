@@ -3,10 +3,12 @@ import {Observable} from 'rxjs';
 import {Task, TaskStatus} from '../models/task-model';
 import {TaskService} from '../services/task';
 import {CommonModule} from '@angular/common';
+import {AddTask} from '../add-task/add-task';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-task-list',
-  imports: [CommonModule],
+  imports: [CommonModule, AddTask, RouterLink],
   templateUrl: './task-list.html',
   styleUrl: './task-list.css'
 })
@@ -20,6 +22,10 @@ export class TaskList  implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  toggleAddForm(): void {
+    this.showAddForm = !this.showAddForm;
   }
 
   deleteTask(id: string) {
@@ -56,6 +62,10 @@ export class TaskList  implements OnInit {
       default:
         return '';
     }
+  }
+
+  onTaskAdded(): void {
+    this.showAddForm = false;
   }
 
 }

@@ -1,1 +1,71 @@
-<p>task-detail works!</p>
+<div class="task-detail-container">
+  <div class="task-detail-header">
+    <button class="btn btn-secondary" (click)="goBack()">
+      ← Назад
+    </button>
+    <h2>Детали задачи</h2>
+  </div>
+
+  <div class="task-detail-content" *ngIf="task; else notFound">
+    <div class="task-card">
+      <div class="task-header">
+        <h1>{{ task.title }}</h1>
+        <span class="task-status" [ngClass]="getStatusClass(task.status)">
+          {{ getStatusText(task.status) }}
+        </span>
+      </div>
+
+      <div class="task-info">
+        <div class="info-item">
+          <label>Описание:</label>
+          <p *ngIf="task.description; else noDescription">
+            {{ task.description }}
+          </p>
+          <ng-template #noDescription>
+            <p class="no-description">Описание отсутствует</p>
+          </ng-template>
+        </div>
+
+        <div class="info-item">
+          <label>Дата создания:</label>
+          <p>{{ task.createdAt | date:'full' }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>ID задачи:</label>
+          <p>{{ task.id }}</p>
+        </div>
+      </div>
+
+      <div class="task-actions">
+        <div class="status-actions">
+          <label>Изменить статус:</label>
+          <select
+            class="status-select"
+            [value]="task.status"
+            (change)="updateTaskStatus($any($event.target).value)">
+            <option value="todo">Не выполнена</option>
+            <option value="in_progress">В процессе</option>
+            <option value="completed">Выполнена</option>
+          </select>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-danger" (click)="deleteTask()">
+            Удалить задачу
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #notFound>
+    <div class="not-found">
+      <h3>Задача не найдена</h3>
+      <p>Задача с указанным ID не существует или была удалена.</p>
+      <button class="btn btn-primary" (click)="goBack()">
+        Вернуться к списку задач
+      </button>
+    </div>
+  </ng-template>
+</div>
