@@ -1,0 +1,135 @@
+.task-list-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.task-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.task-list-header h2 {
+  color: #333;
+  margin: 0;
+}
+
+.add-task-form {
+  margin-bottom: 30px;
+}
+
+.tasks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.task-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.task-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.task-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2em;
+}
+
+.task-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-todo {
+  background-color: #ffeaa7;
+  color: #d63031;
+}
+
+.status-in-progress {
+  background-color: #74b9ff;
+  color: white;
+}
+
+.status-completed {
+  background-color: #55a3ff;
+  color: white;
+}
+
+.task-description {
+  color: #666;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.task-date {
+  color: #999;
+  font-size: 0.9em;
+  margin-bottom: 15px;
+}
+
+.task-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.status-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.no-tasks {
+  text-align: center;
+  padding: 50px 20px;
+  color: #666;
+}
+
+.no-tasks p {
+  font-size: 1.1em;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .task-list-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .task-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .task-actions .btn,
+  .task-actions .status-select {
+    width: 100%;
+  }
+}

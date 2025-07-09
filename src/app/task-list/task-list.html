@@ -1,1 +1,51 @@
-<p>task-list works!</p>
+<div class="task-list-container">
+  <div class="task-list-header">
+    <h2>Список задач</h2>
+    <button class="btn btn-primary">
+      {{ showAddForm ? 'Отмена' : 'Добавить задачу' }}
+    </button>
+  </div>
+
+
+  <div class="tasks-container">
+    <div class="task-card" *ngFor="let task of tasks$ | async">
+      <div class="task-header">
+        <h3>{{ task.title }}</h3>
+        <span class="task-status" [ngClass]="getStatusClass(task.status)">
+          {{ getStatusText(task.status) }}
+        </span>
+      </div>
+
+      <div class="task-description" *ngIf="task.description">
+        {{ task.description }}
+      </div>
+
+      <div class="task-date">
+        Создано: {{ task.createdAt | date:'short' }}
+      </div>
+
+      <div class="task-actions">
+        <select
+          class="status-select"
+          [value]="task.status"
+          (change)="updateTaskStatus(task.id, $any($event.target).value)">
+          <option value="todo">Не выполнена</option>
+          <option value="in_progress">В процессе</option>
+          <option value="completed">Выполнена</option>
+        </select>
+
+        <a class="btn btn-secondary">
+          Подробнее
+        </a>
+
+        <button class="btn btn-danger" (click)="deleteTask(task.id)">
+          Удалить
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-tasks" *ngIf="(tasks$ | async)?.length === 0">
+    <p>Нет задач для отображения</p>
+  </div>
+</div>
